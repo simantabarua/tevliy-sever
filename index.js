@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors')
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
@@ -24,7 +24,7 @@ async function run() {
         // Get tours api 
         app.get('/tours', async (req, res) => {
             const cursor = toursCollection.find({});
-            const tours = await cursor.limit(1).toArray();
+            const tours = await cursor.limit(10).toArray();
             res.send(tours);
         })
 
