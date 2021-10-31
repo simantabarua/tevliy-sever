@@ -24,10 +24,28 @@ async function run() {
         // Get tours api 
         app.get('/tours', async (req, res) => {
             const cursor = toursCollection.find({});
-            const tours = await cursor.limit(10).toArray();
-            res.send(tours);
-        })
+            const page = req.query.page;
+            const size = parseInt(req.query.size);
+            const count = await cursor.count();
+            if (page) {
+                tours = await cursor.skip(page * size).limit(size).toArray();
+            }
+            else {
+                tours = await cursor.toArray();
+            }
 
+            res.send({
+                count,
+                tours
+            });
+        });
+        // Use POST to get data by keys
+        app.post('/tours/byKeys', async (req, res) => {
+            const keys = req.body;
+            const query = { key: { $in: keys } }
+            const tours = await toursCollection.find(query).toArray();
+            res.send(tours);
+        });
 
 
     }
