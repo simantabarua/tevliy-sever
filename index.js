@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors')
 const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 // middleware
@@ -21,7 +22,7 @@ async function run() {
         await client.connect()
         const database = client.db('tevliyDB');
         const toursCollection = database.collection('tours');
-        // Get tours api 
+        // Get tours api for pagination
         app.get('/tours', async (req, res) => {
             const cursor = toursCollection.find({});
             const page = req.query.page;
@@ -33,24 +34,22 @@ async function run() {
             else {
                 tours = await cursor.toArray();
             }
-
             res.send({
                 count,
                 tours
             });
         });
-        // Use POST to get data by keys
-        app.post('/tours/byKeys', async (req, res) => {
-            const keys = req.body;
-            const query = { key: { $in: keys } }
-            const tours = await toursCollection.find(query).toArray();
-            res.send(tours);
-        });
-
-
+        // one tours
+        app.get('/tours/details/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const tour = await toursCollection.findOne(query);
+            console.log('load user with id:', id);
+            res.send(tour);
+        })
     }
     finally {
-        // await client.close();
+      
     }
 }
 run().catch(console.dir);
