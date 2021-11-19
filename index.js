@@ -60,15 +60,26 @@ async function run() {
         app.delete("/deleteOrder/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await Order_Collection.deleteOne(query);
+            const result = await OrderCollection.deleteOne(query);
             res.json(result);
         });
         // load all order 
         app.get("/orders", async (req, res) => {
-            if (req.email && req.email === req.query.email) {
-                const orders = await Order_Collection.find({}).toArray();
-                res.json(orders);
-            }
+            const orders = await OrderCollection.find({}).toArray();
+            res.json(orders);
+
+        });
+        // load all order base on user email
+        app.get("/myOrders/:email", async (req, res) => {
+            const result = await OrderCollection.find({ email: req.params.email }).toArray();
+            res.json(result);
+        });
+        // add Tour 
+        app.post("/addTour", async (req, res) => {
+            const tour = req.body;
+            const result = await toursCollection.insertOne(tour);
+            console.log(result);
+            res.json(result);
         });
     }
 
