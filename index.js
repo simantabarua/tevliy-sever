@@ -23,6 +23,7 @@ async function run() {
         const database = client.db('tevliyDB');
         const toursCollection = database.collection('tours');
         const OrderCollection = database.collection('orders');
+        const AdminCollection = database.collection('admins')
         // Get tours api for pagination
         app.get('/tours', async (req, res) => {
             const cursor = toursCollection.find({});
@@ -78,13 +79,24 @@ async function run() {
         app.post("/addTour", async (req, res) => {
             const tour = req.body;
             const result = await toursCollection.insertOne(tour);
-            console.log(result);
             res.json(result);
         });
+        //make Admin
+        app.post("/makeAdmin", async (req, res) => {
+            const admin = req.body;
+            const result = await AdminCollection.insertOne(admin);
+            res.json(result);
+        });
+        //load admin
+        app.get("/admins", async (req, res) => {
+            if (req.query.email) {
+                const result = await AdminCollection.find({ email: req.query.email }).toArray();
+                res.send(result?.length > 0);
+            }
+        });
     }
-
     finally {
-
+        // await client.close();
     }
 }
 run().catch(console.dir);
