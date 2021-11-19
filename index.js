@@ -22,6 +22,7 @@ async function run() {
         await client.connect()
         const database = client.db('tevliyDB');
         const toursCollection = database.collection('tours');
+        const OrderCollection = database.collection('orders');
         // Get tours api for pagination
         app.get('/tours', async (req, res) => {
             const cursor = toursCollection.find({});
@@ -46,10 +47,33 @@ async function run() {
             const tour = await toursCollection.findOne(query);
             console.log('load user with id:', id);
             res.send(tour);
-        })
+        });
+
+        // add order 
+        app.post("/placeOrder", async (req, res) => {
+            const order = req.body;
+            const result = await OrderCollection.insertOne(order);
+            console.log(result);
+            res.json(result);
+        });
+        // delete order
+        app.delete("/deleteOrder/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await Order_Collection.deleteOne(query);
+            res.json(result);
+        });
+        // load all order 
+        app.get("/orders", async (req, res) => {
+            if (req.email && req.email === req.query.email) {
+                const orders = await Order_Collection.find({}).toArray();
+                res.json(orders);
+            }
+        });
     }
+
     finally {
-      
+
     }
 }
 run().catch(console.dir);
@@ -57,7 +81,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("running")
+    res.send("tevily server is running")
 });
 
 app.listen(port, () => {
